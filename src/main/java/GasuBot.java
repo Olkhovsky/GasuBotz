@@ -17,25 +17,12 @@ import java.util.List;
 
 
 public class GasuBot extends TelegramLongPollingCommandBot {
-    private static final String BOT_USERNAME = "Gasu2049_bot";
-    private static final String BOT_TOKEN = "WhatTheHellAreYouLookingFor";
 
     public GasuBot(DefaultBotOptions botOptions) {
-        super(botOptions, BOT_USERNAME);
-        register(new HelloCommand());
-
-        ReplyKeyboard keyBoard = getKeyboard();
-        SendMessage sendMsg = new SendMessage().setReplyMarkup(keyBoard);
-        try {
-            execute(sendMsg);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-
+        super(botOptions, Token.BOT_USERNAME);
     }
     public GasuBot() {
-        super(BOT_USERNAME);
-        register(new HelloCommand());
+        super(Token.BOT_USERNAME);
     }
     @Override
     public void processNonCommandUpdate(Update update) {
@@ -52,24 +39,9 @@ public class GasuBot extends TelegramLongPollingCommandBot {
 
     @Override
     public String getBotToken() {
-        return BOT_TOKEN;
+        return Token.BOT_TOKEN;
     }
 
 
-    public ReplyKeyboard getKeyboard() {
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-        replyKeyboardMarkup.setOneTimeKeyboard(true);
 
-        List<KeyboardRow> keyBoard = new ArrayList<>();
-        KeyboardRow firstRow = new KeyboardRow();
-        firstRow.add("/hello");
-
-//        KeyboardRow secondRow = new KeyboardRow();
-//        secondRow.add("hello");
-//        secondRow.add("hello");
-        keyBoard.add(firstRow);
-//        keyBoard.add(secondRow);
-        replyKeyboardMarkup.setKeyboard(keyBoard);
-        return  replyKeyboardMarkup;
-    }
 }
