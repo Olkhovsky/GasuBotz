@@ -6,7 +6,9 @@ public class Dictionary {
     private Language _from;
     private Language _to;
     private HashSet<Word> _words;
-    private HashSet<Consumer<Word>> _listeners = new HashSet<>();
+    private HashSet<Consumer<Word>> _newWordListeners = new HashSet<>();
+    private HashSet<Consumer<Word>> _changeWordListeners = new HashSet<>();
+    private HashSet<Consumer<Word>> _deleteWordListeners = new HashSet<>();
 
 
     public Dictionary(Language from, Language to) {
@@ -19,13 +21,13 @@ public class Dictionary {
         map.put(_to, translation.toLowerCase());
         Word newWord = new Word(map);
         if (_words.add(new Word(map))) {
-            Update(newWord);
+            UpdateNew(newWord);
         }
     }
 
     public void Add(Word word) {
         if (_words.add(word)) {
-            Update(word);
+            UpdateNew(word);
         }
     }
 
@@ -36,6 +38,26 @@ public class Dictionary {
             }
         }
         return null;
+    }
+
+    public boolean ChangeWord(String word, String translation) {
+        Word w = _words.stream().filter(a -> a.getWord(_to) == word).findFirst().get();
+        if (w != null && w.getWord(_from) != null) {
+            w.SetWord(_from, translation);
+            UpdateChange(w);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean DeleteWord(String word, String translation) {
+        Word w = _words.stream().filter(a -> a.getWord(_to) == word).findFirst().get();
+        if (w != null) {
+            _words.remove(w);
+            UpdateDelete(w);
+            return true;
+        }
+        return false;
     }
 
     public void Reverse() {
@@ -55,12 +77,25 @@ public class Dictionary {
     public HashSet<Word> getWords() {
         return _words;
     }
+
     public void SubscribeOnNewWord(Consumer<Word> listener) {
-        _listeners.add(listener);
+        _newWordListeners.add(listener);
+    }
+    public void SubscribeOnChangeWord(Consumer<Word> listener) {
+        _changeWordListeners.add(listener);
+    }
+    public void SubscribeOnDeleteWord(Consumer<Word> listener) {
+        _deleteWordListeners.add(listener);
     }
 
-    private void Update(Word newWord) {
-        _listeners.forEach(x -> x.accept(newWord));
+    private void UpdateNew(Word newWord) {
+        _newWordListeners.forEach(x -> x.accept(newWord));
+    }
+    private void UpdateChange(Word changedWord) {
+        _changeWordListeners.forEach(x -> x.accept(changedWord));
+    }
+    private void UpdateDelete(Word changedWord) {
+        _deleteWordListeners.forEach(x -> x.accept(changedWord));
     }
 
 }
