@@ -1,8 +1,7 @@
 import java.util.*;
 import java.util.stream.Collectors;
 
-public abstract class Exercise {
-    private final Dictionary _dictionary;
+public class Exercise implements Iterator<String>  {
 
     class WordWatcher {
         private final Word _word;
@@ -26,15 +25,21 @@ public abstract class Exercise {
         public double GetScore() {
             return _score;
         }
+        public Word GetWord() {
+            return _word;
+        }
     }
 
-    private static final float RATE = 0.333f;
+    protected final Dictionary _dictionary;
+    protected List<WordWatcher> _activeWatchers;
+    protected boolean _isSet;
+    protected int currentWatcher;
+    private static final float RATE = 0.3f;
     private HashSet<WordWatcher> _watchers = new HashSet<>();
-    private List<WordWatcher> _activeWatchers;
     private double _initialScore;
     private int _limit;
 
-    protected Exercise(Dictionary dictionary) {
+    public Exercise(Dictionary dictionary) {
         _dictionary = dictionary;
         _dictionary.SubscribeOnNewWord((w) -> _watchers.add(new WordWatcher(w)));
         _dictionary.SubscribeOnChangeWord((w) -> _watchers.add(new WordWatcher(w)));
@@ -43,26 +48,50 @@ public abstract class Exercise {
         for(Word w : dictionary.getWords()) {
             _watchers.add(new WordWatcher(w));
         }
+        _isSet = false;
     }
 
-    protected void SetUp(int limit) {
-        _limit = limit;
-        int half = (int) (limit - limit*RATE);
-        _activeWatchers = _watchers.stream()
-                .sorted(Comparator.comparingDouble(WordWatcher::GetScore))
-                .limit(half)
-                .collect(Collectors.toCollection(ArrayList::new));
+    public void Start(int limit) {
+        SetUp(limit);
+    }
 
-        for(int i = 0; i < limit*RATE; i++) {
-            _activeWatchers.add(_activeWatchers.get(0));
+    public void WriteAnswer(String answer) {
+        if(!_isSet) {
+            return;
         }
-        Collections.shuffle(_activeWatchers);
-        _initialScore = GetTotalScore(_activeWatchers);
+        WordWatcher watcher = _activeWatchers.get(currentWatcher);
+        String translate = _dictionary.GetToVersion(watcher._word);
+        if (answer.toLowerCase().equals(translate)) {
+            watcher.Right();
+            return;
+        }
+        watcher.Wrong();
     }
 
 
-    protected String Result() {
-        double total = GetTotalScore(_activeWatchers);
+    @Override
+    public boolean hasNext() {
+        if (currentWatcher + 1 < _activeWatchers.size()) {
+            return  true;
+        }
+        _isSet = false;
+        return  false;
+    }
+
+    @Override
+    public String next() {
+        currentWatcher++;
+        String word = _dictionary.GetFromVersion(
+                _activeWatchers.get(currentWatcher).GetWord()
+        );
+        return word;
+    }
+
+    public String Result() {
+        if (_isSet) {
+            return null;
+        }
+        double total = GetTotalScore();
         if (total < _initialScore) {
             return "too bad.";
         }
@@ -72,15 +101,32 @@ public abstract class Exercise {
             return "bad.";
         }
 
-        if (progress < 0.6f) {
+        if (progress < 0.7f) {
             return  "good.";
         }
         return "excellent.";
     }
 
-    private double GetTotalScore(List<WordWatcher> list) {
+    private void SetUp(int limit) {
+        _limit = limit;
+        int half = (int) (limit - limit*RATE);
+        _activeWatchers = _watchers.stream()
+                .sorted(Comparator.comparingDouble(WordWatcher::GetScore))
+                .limit(half)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        for(int i = 0; i < limit*RATE; i++) {
+            _activeWatchers.add(_activeWatchers.get(i));
+        }
+        Collections.shuffle(_activeWatchers);
+        _initialScore = GetTotalScore();
+        _isSet = true;
+        currentWatcher = -1;
+    }
+
+    private double GetTotalScore() {
         double total = 0;
-        for(WordWatcher ww : list) {
+        for(WordWatcher ww : _watchers) {
             total += ww._score;
         }
         return total;

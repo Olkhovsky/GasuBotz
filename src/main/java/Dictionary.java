@@ -12,6 +12,8 @@ public class Dictionary {
 
 
     public Dictionary(Language from, Language to) {
+        _from = from;
+        _to = to;
         _words = new HashSet();
     }
 
@@ -38,6 +40,14 @@ public class Dictionary {
             }
         }
         return null;
+    }
+
+    public String GetFromVersion (Word word) {
+        return word.getWord(_from);
+    }
+
+    public String GetToVersion (Word word) {
+        return word.getWord(_to);
     }
 
     public boolean ChangeWord(String word, String translation) {
