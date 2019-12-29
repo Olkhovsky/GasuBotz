@@ -1,9 +1,10 @@
 package Bot;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Word {
+public class Word implements Serializable {
     private Map<Language, String> _versions;
 
     public Word(HashMap<Language, String> versions) {

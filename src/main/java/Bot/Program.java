@@ -13,11 +13,10 @@ public class Program {
         TelegramBotsApi botApi = new TelegramBotsApi();
         try {
             DefaultBotOptions botOptions = ApiContext.getInstance(DefaultBotOptions.class);
-            botOptions.setProxyHost("103.73.74.217");
-            botOptions.setProxyPort(8080);
-            botOptions.setProxyType(DefaultBotOptions.ProxyType.HTTP    );
+            botOptions.setProxyHost("188.225.27.151");
+            botOptions.setProxyPort(3128);
+            botOptions.setProxyType(DefaultBotOptions.ProxyType.HTTP);
             botApi.registerBot(new GasuBot(botOptions));
-            //botApi.registerBot(new Bot.GasuBot());
         } catch (TelegramApiRequestException e) {
             e.printStackTrace();
         }

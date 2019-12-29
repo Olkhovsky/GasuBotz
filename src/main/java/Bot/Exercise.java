@@ -1,11 +1,12 @@
 package Bot;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Exercise implements Iterator<String>  {
+public class Exercise implements Iterator<String>, Serializable {
 
-    class WordWatcher {
+    class WordWatcher implements Serializable{
         private final Word _word;
         private double _score = 0;
 
@@ -98,18 +99,18 @@ public class Exercise implements Iterator<String>  {
         }
         double total = GetTotalScore();
         if (total < _initialScore) {
-            return "too bad.";
+            return "Too bad.";
         }
 
         float progress = (float)((total -_initialScore)/_limit);
         if (progress < 0.3f) {
-            return "bad.";
+            return "Bad.";
         }
 
         if (progress < 0.7f) {
-            return  "good.";
+            return  "Good.";
         }
-        return "excellent.";
+        return "Excellent.";
     }
 
     private void SetUp(int limit) {

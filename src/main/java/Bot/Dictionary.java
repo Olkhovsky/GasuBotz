@@ -1,10 +1,11 @@
 package Bot;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.function.Consumer;
 
-public class Dictionary {
+public class Dictionary implements Serializable {
     private Language _from;
     private Language _to;
     private HashSet<Word> _words;
@@ -37,7 +38,7 @@ public class Dictionary {
 
     public String GetTranslation(String word) {
         for(Word w : _words) {
-            if (w.getWord(_from) == word) {
+            if (w.getWord(_from).equals(word.toLowerCase())) {
                 return w.getWord(_to);
             }
         }
@@ -53,17 +54,17 @@ public class Dictionary {
     }
 
     public boolean ChangeWord(String word, String translation) {
-        Word w = _words.stream().filter(a -> a.getWord(_to) == word).findFirst().get();
+        Word w = _words.stream().filter(a -> a.getWord(_from).equals(word)).findFirst().get();
         if (w != null && w.getWord(_from) != null) {
-            w.SetWord(_from, translation);
+            w.SetWord(_to, translation);
             UpdateChange(w);
             return true;
         }
         return false;
     }
 
-    public boolean DeleteWord(String word, String translation) {
-        Word w = _words.stream().filter(a -> a.getWord(_to) == word).findFirst().get();
+    public boolean DeleteWord(String word) {
+        Word w = _words.stream().filter(a -> a.getWord(_from).equals(word)).findFirst().get();
         if (w != null) {
             _words.remove(w);
             UpdateDelete(w);
