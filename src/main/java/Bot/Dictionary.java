@@ -9,9 +9,9 @@ public class Dictionary implements Serializable {
     private Language _from;
     private Language _to;
     private HashSet<Word> _words;
-    private HashSet<Consumer<Word>> _newWordListeners = new HashSet<>();
-    private HashSet<Consumer<Word>> _changeWordListeners = new HashSet<>();
-    private HashSet<Consumer<Word>> _deleteWordListeners = new HashSet<>();
+    private  HashSet<Consumer<Word>> _newWordListeners = new HashSet<>();
+    private  HashSet<Consumer<Word>> _changeWordListeners = new HashSet<>();
+    private  HashSet<Consumer<Word>> _deleteWordListeners = new HashSet<>();
 
 
     public Dictionary(Language from, Language to) {

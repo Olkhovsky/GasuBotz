@@ -5,11 +5,12 @@ import org.telegram.abilitybots.api.objects.*;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 
 public class GasuBot extends AbilityBot {
-    private Dictionary current;
+    private Map<Integer, Dictionary> userDic = new HashMap<>();
     private String dicName;
     private Exercise exercise;
 
@@ -48,7 +49,7 @@ public class GasuBot extends AbilityBot {
                          Language lang2 = Language.values()[Integer.parseInt(ctx.thirdArg())];
                          dic = new Dictionary(lang1, lang2);
                          map.put(ctx.firstArg(), dic);
-                         current = dic;
+                         userDic.put(ctx.user().getId(), dic);
                          Done(ctx.chatId());
                      }
                      else {
@@ -69,7 +70,7 @@ public class GasuBot extends AbilityBot {
                     Map<String, Dictionary> map = db.getMap("dics" + ctx.user().getId());
                     Dictionary dic = map.get(ctx.firstArg());
                     if (dic != null) {
-                        current = dic;
+                        userDic.put(ctx.user().getId(), dic);
                         dicName = ctx.firstArg();
                         Done(ctx.chatId());
                     }
@@ -88,6 +89,7 @@ public class GasuBot extends AbilityBot {
                 .locality(Locality.ALL)
                 .privacy(Privacy.PUBLIC)
                 .action(ctx -> {
+                    Dictionary current = userDic.get(ctx.user().getId());
                     if (current != null) {
                         current.getWords().stream().forEach(w -> {
                             silent.send(w.getWord(current.GetFrom()) + " " +
@@ -109,6 +111,7 @@ public class GasuBot extends AbilityBot {
                 .locality(Locality.ALL)
                 .privacy(Privacy.PUBLIC)
                 .action(ctx -> {
+                    Dictionary current = userDic.get(ctx.user().getId());
                     if (current != null) {
                         current.Reverse();
                         Done(ctx.chatId());
@@ -128,6 +131,7 @@ public class GasuBot extends AbilityBot {
                 .locality(Locality.ALL)
                 .privacy(Privacy.PUBLIC)
                 .action(ctx -> {
+                    Dictionary current = userDic.get(ctx.user().getId());
                     if (current != null) {
                         current.Add(ctx.firstArg(), ctx.secondArg());
                         Done(ctx.chatId());
@@ -147,6 +151,7 @@ public class GasuBot extends AbilityBot {
                 .locality(Locality.ALL)
                 .privacy(Privacy.PUBLIC)
                 .action(ctx -> {
+                    Dictionary current = userDic.get(ctx.user().getId());
                     if (current != null) {
                         boolean result = current.ChangeWord(ctx.firstArg(), ctx.secondArg());
                         if (result) {
@@ -170,6 +175,7 @@ public class GasuBot extends AbilityBot {
                 .locality(Locality.ALL)
                 .privacy(Privacy.PUBLIC)
                 .action(ctx -> {
+                    Dictionary current = userDic.get(ctx.user().getId());
                     if (current != null) {
                         boolean result = current.DeleteWord(ctx.firstArg());
                         if (result) {
@@ -187,6 +193,7 @@ public class GasuBot extends AbilityBot {
 
     public Reply Translate() {
         return Reply.of( update -> {
+            Dictionary current = userDic.get(update.getMessage().getFrom().getId());
             if (current != null) {
                 String word = current.GetTranslation(update.getMessage().getText());
                 if (word != null) {
@@ -213,17 +220,18 @@ public class GasuBot extends AbilityBot {
                 .locality(Locality.ALL)
                 .privacy(Privacy.PUBLIC)
                 .action(ctx -> {
+                    Dictionary current = userDic.get(ctx.user().getId());
                     if (current != null) {
-
+                        current.Add("sd", "dsd");
                         if (exercise == null) {
                             Map<String, Exercise> map = db.getMap("ex" + ctx.user().getId());
                             exercise = map.get(dicName);
+                            if (exercise == null) {
+                                exercise = new Exercise(current);
+                                map.put(dicName, exercise);
+                            }
                         }
 
-                        if (exercise == null) {
-                            exercise = new Exercise(current);
-//                            map.put(dicName, ex);
-                        }
                         exercise.Start(5);
                         silent.send(exercise.next(), ctx.chatId());
                     }

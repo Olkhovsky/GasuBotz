@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 public class Exercise implements Iterator<String>, Serializable {
 
-    class WordWatcher implements Serializable{
+    public class WordWatcher implements Serializable{
         private final Word _word;
         private double _score = 0;
 
@@ -33,7 +33,7 @@ public class Exercise implements Iterator<String>, Serializable {
         }
     }
 
-    protected final Dictionary _dictionary;
+    protected transient final Dictionary _dictionary;
     protected List<WordWatcher> _activeWatchers;
     protected boolean _isSet;
     protected int currentWatcher;
